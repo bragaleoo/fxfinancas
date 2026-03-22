@@ -51,28 +51,23 @@ export default function Relatorios() {
   async function fetchData() {
     setLoading(true);
     try {
-      let query = supabase.from('propostas').select('*').order('created_at', { ascending: false });
+      let query = supabase
+        .from('propostas')
+        .select('*')
+        .gte('data_fechamento', startDate)
+        .lte('data_fechamento', endDate)
+        .order('created_at', { ascending: false });
 
       if (status !== 'Todos') query = query.eq('status', status);
       if (consultor !== 'Todos') query = query.eq('consultor_nome', consultor);
       if (categoria !== 'Todas') query = query.eq('categoria', categoria);
+      if (minValor) query = query.gte('valor_consorcio', parseFloat(minValor));
+      if (maxValor) query = query.lte('valor_consorcio', parseFloat(maxValor));
 
       const { data, error } = await query;
       if (error) throw error;
 
-      let filtered = data as Proposta[];
-
-      // Filter by date range (using data_fechamento which is YYYY-MM-DD)
-      filtered = filtered.filter(p => {
-        if (!p.data_fechamento) return false;
-        return p.data_fechamento >= startDate && p.data_fechamento <= endDate;
-      });
-
-      // Filter by value range
-      if (minValor) filtered = filtered.filter(p => p.valor_consorcio >= parseFloat(minValor));
-      if (maxValor) filtered = filtered.filter(p => p.valor_consorcio <= parseFloat(maxValor));
-
-      setPropostas(filtered);
+      setPropostas(data as Proposta[]);
     } catch (error) {
       toast.error('Erro ao carregar relatórios');
     } finally {

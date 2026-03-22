@@ -54,7 +54,15 @@ export default function Dashboard() {
   async function fetchData() {
     setLoading(true);
     try {
-      let query = supabase.from('propostas').select('*').order('data_fechamento', { ascending: false });
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - parseInt(period));
+      const cutoffStr = format(cutoff, 'yyyy-MM-dd');
+
+      let query = supabase
+        .from('propostas')
+        .select('*')
+        .gte('data_fechamento', cutoffStr)
+        .order('data_fechamento', { ascending: false });
 
       if (consultor !== 'Todos') query = query.eq('consultor_nome', consultor);
       if (categoria !== 'Todas') query = query.eq('categoria', categoria);
@@ -62,15 +70,7 @@ export default function Dashboard() {
       const { data, error } = await query;
       if (error) throw error;
 
-      let filtered = data as Proposta[];
-
-      // Filter by period (using data_fechamento)
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - parseInt(period));
-      const cutoffStr = format(cutoff, 'yyyy-MM-dd');
-
-      filtered = filtered.filter(p => p.data_fechamento >= cutoffStr);
-
+      const filtered = data as Proposta[];
       setPropostas(filtered);
 
       // Calculate Stats
