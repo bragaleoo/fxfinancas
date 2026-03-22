@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -8,7 +8,8 @@ import {
   Settings, 
   PlusCircle,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -26,6 +27,14 @@ const navItems = [
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = React.useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAdmin');
+    navigate('/login');
+  };
 
   return (
     <>
@@ -100,6 +109,13 @@ export function Sidebar() {
               <Settings size={18} />
               Configurações
             </NavLink>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-400/10 transition-all"
+            >
+              <LogOut size={18} />
+              Sair
+            </button>
           </div>
         </div>
       </aside>

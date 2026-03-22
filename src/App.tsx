@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { Sidebar } from './components/Sidebar';
 
 // Lazy load pages
-const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Propostas = React.lazy(() => import('./pages/Propostas'));
 const NovaProposta = React.lazy(() => import('./pages/NovaProposta'));
@@ -12,6 +11,17 @@ const EditarProposta = React.lazy(() => import('./pages/EditarProposta'));
 const DetalheProposta = React.lazy(() => import('./pages/DetalheProposta'));
 const Relatorios = React.lazy(() => import('./pages/Relatorios'));
 const Calculadora = React.lazy(() => import('./pages/Calculadora'));
+const Login = React.lazy(() => import('./pages/Login'));
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const auth = localStorage.getItem('auth') === 'true';
+  
+  if (!auth) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Layout>{children}</Layout>;
+}
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -32,50 +42,29 @@ function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const auth = localStorage.getItem('fx_auth');
-    setIsAuthenticated(auth === 'true');
-  }, []);
-
-  if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <Router>
       <Routes>
-        {!isAuthenticated ? (
-          <>
-            <Route path="/login" element={
-              <React.Suspense fallback={<div className="min-h-screen bg-zinc-950" />}>
-                <Login />
-              </React.Suspense>
-            } />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </>
-        ) : (
-          <Route path="*" element={
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/propostas" element={<Propostas />} />
-                <Route path="/propostas/nova" element={<NovaProposta />} />
-                <Route path="/propostas/editar/:id" element={<EditarProposta />} />
-                <Route path="/propostas/:id" element={<DetalheProposta />} />
-                <Route path="/relatorios" element={<Relatorios />} />
-                <Route path="/calculadora" element={<Calculadora />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-            </Layout>
-          } />
-        )}
+        <Route path="/login" element={
+          <React.Suspense fallback={
+            <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
+            <Login />
+          </React.Suspense>
+        } />
+        
+        <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/propostas" element={<ProtectedRoute><Propostas /></ProtectedRoute>} />
+        <Route path="/propostas/nova" element={<ProtectedRoute><NovaProposta /></ProtectedRoute>} />
+        <Route path="/propostas/editar/:id" element={<ProtectedRoute><EditarProposta /></ProtectedRoute>} />
+        <Route path="/propostas/:id" element={<ProtectedRoute><DetalheProposta /></ProtectedRoute>} />
+        <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+        <Route path="/calculadora" element={<ProtectedRoute><Calculadora /></ProtectedRoute>} />
+        
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   );
