@@ -124,9 +124,17 @@ export default function Dashboard() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header & Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Executivo</h1>
-          <p className="text-zinc-400">Visão geral estratégica do seu negócio.</p>
+        <div className="flex items-center justify-between w-full">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard Executivo</h1>
+            <p className="text-zinc-400">Visão geral estratégica do seu negócio.</p>
+          </div>
+          <img 
+            src="https://res.cloudinary.com/dvybpkimh/image/upload/v1774183289/Design_sem_nome_2_nhn64b.png" 
+            alt="Logo" 
+            className="h-16 w-auto object-contain hidden md:block"
+            referrerPolicy="no-referrer"
+          />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

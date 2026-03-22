@@ -68,26 +68,34 @@ export default function DetalheProposta() {
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/propostas')}
-            className="p-2 hover:bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-all border border-transparent hover:border-zinc-800"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{proposta.cliente_nome}</h1>
-              <span className={`badge-status ${
-                proposta.status === 'aprovado' ? 'bg-emerald-500/10 text-emerald-500' :
-                proposta.status === 'rejeitado' ? 'bg-red-500/10 text-red-500' :
-                'bg-amber-500/10 text-amber-500'
-              }`}>
-                {proposta.status}
-              </span>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate('/propostas')}
+              className="p-2 hover:bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-all border border-transparent hover:border-zinc-800"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold tracking-tight">{proposta.cliente_nome}</h1>
+                <span className={`badge-status ${
+                  proposta.status === 'aprovado' ? 'bg-emerald-500/10 text-emerald-500' :
+                  proposta.status === 'rejeitado' ? 'bg-red-500/10 text-red-500' :
+                  'bg-amber-500/10 text-amber-500'
+                }`}>
+                  {proposta.status}
+                </span>
+              </div>
+              <p className="text-zinc-400">Proposta Nº {proposta.proposta} • Criada em {format(new Date(proposta.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
             </div>
-            <p className="text-zinc-400">Proposta Nº {proposta.proposta} • Criada em {format(new Date(proposta.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
           </div>
+          <img 
+            src="https://res.cloudinary.com/dvybpkimh/image/upload/v1774183289/Design_sem_nome_2_nhn64b.png" 
+            alt="Logo" 
+            className="h-16 w-auto object-contain hidden md:block"
+            referrerPolicy="no-referrer"
+          />
         </div>
       </div>
 

@@ -21,7 +21,7 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: FileText, label: 'Controle de Propostas', path: '/propostas' },
   { icon: BarChart3, label: 'Relatórios', path: '/relatorios' },
-  { icon: Calculator, label: 'Calculadora', path: '/calculadora' },
+  { icon: Calculator, label: 'Calculadora de Remuneração Variável', path: '/calculadora' },
 ];
 
 export function Sidebar() {

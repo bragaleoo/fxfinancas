@@ -43,6 +43,7 @@ export default function Calculadora() {
   const [consultor, setConsultor] = useState('Kauã');
   const [cliente, setCliente] = useState('');
   const [metaMensal, setMetaMensal] = useState(10000);
+  const [bonificacaoSemanal, setBonificacaoSemanal] = useState(0);
 
   const addProposta = () => {
     setPropostas([
@@ -115,7 +116,7 @@ export default function Calculadora() {
     return {
       totalComissao,
       totalBonus,
-      totalGeral: totalComissao + totalBonus,
+      totalGeral: totalComissao + totalBonus + bonificacaoSemanal,
       totalCredito,
       aprovados,
       totalPropostas: propostas.length,
@@ -126,7 +127,7 @@ export default function Calculadora() {
         .map(([num, val]) => ({ numero: parseInt(num), valor: val }))
         .sort((a, b) => a.numero - b.numero)
     };
-  }, [propostas]);
+  }, [propostas, bonificacaoSemanal]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -153,7 +154,7 @@ export default function Calculadora() {
       doc.setFontSize(24);
       doc.text('FX FINANÇAS', 20, 25);
       doc.setFontSize(10);
-      doc.text('SIMULAÇÃO DE COMISSÃO V2 PRO', 20, 32);
+      doc.text('SIMULAÇÃO DE REMUNERAÇÃO VARIÁVEL V2 PRO', 20, 32);
 
       // Add Logo to Header (Right Side)
       try {
@@ -185,7 +186,8 @@ export default function Calculadora() {
           ['Total em Crédito', new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalCredito)],
           ['Comissão Base', new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalComissao)],
           ['Bônus Contemplação', new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalBonus)],
-          ['COMISSÃO TOTAL', new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalGeral)],
+          ['Bonificação Semanal', new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(bonificacaoSemanal)],
+          ['REMUNERAÇÃO TOTAL', new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalGeral)],
         ],
         headStyles: { fillColor: primaryColor },
         theme: 'striped',
@@ -252,7 +254,7 @@ export default function Calculadora() {
             <Target size={16} />
             <span className="text-xs font-bold uppercase tracking-widest">Simulador Profissional V2 Pro</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-white">Calculadora de Comissão</h1>
+          <h1 className="text-4xl font-black tracking-tight text-white">Calculadora de Remuneração Variável</h1>
           <p className="text-zinc-400">Gestão de múltiplas propostas e projeção de ganhos reais.</p>
         </div>
         <div className="flex gap-3">
@@ -413,6 +415,15 @@ export default function Calculadora() {
                   className="input-field font-mono" 
                 />
               </div>
+              <div className="space-y-1">
+                <label className="label-text">Bonificação Semanal (R$)</label>
+                <input 
+                  type="text" 
+                  value={formatCurrency(bonificacaoSemanal)} 
+                  onChange={(e) => setBonificacaoSemanal(parseCurrency(e.target.value))}
+                  className="input-field font-mono" 
+                />
+              </div>
             </div>
           </section>
         </div>
@@ -422,13 +433,13 @@ export default function Calculadora() {
           {/* Main Result Card */}
           <section className="glass-card p-6 space-y-6 border-primary/30 bg-primary/5">
             <div className="text-center space-y-2">
-              <p className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em]">Comissão Total Estimada</p>
+              <p className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em]">Remuneração Total Estimada</p>
               <h2 className="text-5xl font-black text-primary">
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalGeral)}
               </h2>
               <div className="flex items-center justify-center gap-2">
                 <div className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold">
-                  {resumo.totalBonus > 0 ? `Inclui ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalBonus)} de bônus` : 'Sem bônus ativos'}
+                  {(resumo.totalBonus + bonificacaoSemanal) > 0 ? `Inclui ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(resumo.totalBonus + bonificacaoSemanal)} de bônus` : 'Sem bônus ativos'}
                 </div>
               </div>
             </div>

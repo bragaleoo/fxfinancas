@@ -14,8 +14,8 @@ import {
   User,
   MapPin,
   Calendar,
-  DollarSign,
-  Briefcase
+  Briefcase,
+  DollarSign
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -186,6 +186,12 @@ export default function NovaProposta() {
             <p className="text-zinc-400">Preencha os dados para cadastrar uma nova venda.</p>
           </div>
         </div>
+        <img 
+          src="https://res.cloudinary.com/dvybpkimh/image/upload/v1774183289/Design_sem_nome_2_nhn64b.png" 
+          alt="Logo" 
+          className="h-16 w-auto object-contain hidden md:block"
+          referrerPolicy="no-referrer"
+        />
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-20">
@@ -250,35 +256,41 @@ export default function NovaProposta() {
 
                 <div className="space-y-1">
                   <label className="label-text">Valor do Crédito (R$)</label>
-                  <input 
-                    type="text" 
-                    className="input-field font-mono" 
-                    placeholder="R$ 0,00" 
-                    {...register('valor_consorcio', { 
-                      required: 'Obrigatório',
-                      onChange: (e) => {
-                        const formatted = formatCurrency(e.target.value);
-                        setValue('valor_consorcio', formatted as any);
-                      }
-                    })} 
-                  />
+                  <div className="relative group">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-primary transition-colors" size={18} />
+                    <input 
+                      type="text" 
+                      className="input-field pl-10 font-mono" 
+                      placeholder="R$ 0,00" 
+                      {...register('valor_consorcio', { 
+                        required: 'Obrigatório',
+                        onChange: (e) => {
+                          const formatted = formatCurrency(e.target.value);
+                          setValue('valor_consorcio', formatted as any);
+                        }
+                      })} 
+                    />
+                  </div>
                   {errors.valor_consorcio && <span className="text-xs text-red-500 mt-1">{errors.valor_consorcio.message}</span>}
                 </div>
 
                 <div className="space-y-1">
                   <label className="label-text">Valor da Parcela (R$)</label>
-                  <input 
-                    type="text" 
-                    className="input-field font-mono" 
-                    placeholder="R$ 0,00" 
-                    {...register('valor_parcela', { 
-                      required: 'Obrigatório',
-                      onChange: (e) => {
-                        const formatted = formatCurrency(e.target.value);
-                        setValue('valor_parcela', formatted as any);
-                      }
-                    })} 
-                  />
+                  <div className="relative group">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-primary transition-colors" size={18} />
+                    <input 
+                      type="text" 
+                      className="input-field pl-10 font-mono" 
+                      placeholder="R$ 0,00" 
+                      {...register('valor_parcela', { 
+                        required: 'Obrigatório',
+                        onChange: (e) => {
+                          const formatted = formatCurrency(e.target.value);
+                          setValue('valor_parcela', formatted as any);
+                        }
+                      })} 
+                    />
+                  </div>
                   {errors.valor_parcela && <span className="text-xs text-red-500 mt-1">{errors.valor_parcela.message}</span>}
                 </div>
 
