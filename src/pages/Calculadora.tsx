@@ -84,8 +84,8 @@ export default function Calculadora() {
     propostas.forEach(p => {
       // Commission Calculation
       let basePercent = 0.8;
-      if (p.valor_credito >= 300000) basePercent = 1.0;
-      else if (p.valor_credito >= 250000) basePercent = 0.9;
+      if (p.valor_credito >= 500000) basePercent = 1.2;
+      else if (p.valor_credito >= 350000) basePercent = 0.9;
 
       const comissaoIndividual = (p.valor_credito * basePercent) / 100;
       totalComissao += comissaoIndividual;
@@ -203,8 +203,8 @@ export default function Calculadora() {
         head: [['Categoria', 'Crédito', 'Status', 'Contemplado', 'Comissão + Bônus']],
         body: propostas.map(p => {
           let basePercent = 0.8;
-          if (p.valor_credito >= 300000) basePercent = 1.0;
-          else if (p.valor_credito >= 250000) basePercent = 0.9;
+          if (p.valor_credito >= 500000) basePercent = 1.2;
+          else if (p.valor_credito >= 350000) basePercent = 0.9;
           const com = (p.valor_credito * basePercent) / 100;
           const bon = p.contemplado ? p.valor_contemplacao * 0.001 : 0;
           return [
@@ -539,7 +539,7 @@ export default function Calculadora() {
             <Info className="text-primary shrink-0" size={20} />
             <div className="text-[10px] text-zinc-400 space-y-1">
               <p className="font-bold text-primary uppercase tracking-wider">Regras V2 Pro:</p>
-              <p>• Comissão: &lt;250k (0.8%) | 250k-300k (0.9%) | &gt;300k (1.0%)</p>
+              <p>• Sênior: 200k (0.8%) | Elite: 350k (0.9%) | Sellect: 500k (1.2%)</p>
               <p>• Bônus: +0.1% sobre o valor contemplado.</p>
               <p>• Prazos: Imóvel (1ª/6ª) | Outros (1ª/4ª).</p>
             </div>
