@@ -200,6 +200,8 @@ export default function Propostas() {
           <option value="Todos">Todos Consultores</option>
           <option value="Kauã">Kauã</option>
           <option value="Luan">Luan</option>
+          <option value="Osvaldo Pinheiro">Osvaldo Pinheiro</option>
+          <option value="Anderson Fontes">Anderson Fontes</option>
         </select>
 
         <select 
