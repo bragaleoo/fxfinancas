@@ -27,6 +27,7 @@ interface PropostaCalculo {
   status: 'pendente' | 'aprovado';
   contemplado: boolean;
   valor_contemplacao: number;
+  tipo_parcela: 'linear' | 'reduzida';
 }
 
 export default function Calculadora() {
@@ -37,12 +38,13 @@ export default function Calculadora() {
       valor_credito: 0,
       status: 'pendente',
       contemplado: false,
-      valor_contemplacao: 0
+      valor_contemplacao: 0,
+      tipo_parcela: 'linear'
     }
   ]);
   const [consultor, setConsultor] = useState('Kauã');
   const [cliente, setCliente] = useState('');
-  const [metaMensal, setMetaMensal] = useState(10000);
+  const [metaMensal, setMetaMensal] = useState(200000); // Meta de vendas
   const [bonificacaoSemanal, setBonificacaoSemanal] = useState(0);
 
   const addProposta = () => {
@@ -54,7 +56,8 @@ export default function Calculadora() {
         valor_credito: 0,
         status: 'pendente',
         contemplado: false,
-        valor_contemplacao: 0
+        valor_contemplacao: 0,
+        tipo_parcela: 'linear'
       }
     ]);
     toast.success('Nova proposta adicionada');
@@ -87,7 +90,13 @@ export default function Calculadora() {
       if (p.valor_credito >= 500000) basePercent = 1.2;
       else if (p.valor_credito >= 350000) basePercent = 0.9;
 
-      const comissaoIndividual = (p.valor_credito * basePercent) / 100;
+      let comissaoIndividual = (p.valor_credito * basePercent) / 100;
+      
+      // Apply reduction if parcel is 'reduzida'
+      if (p.tipo_parcela === 'reduzida') {
+        comissaoIndividual *= 0.6; // 40% reduction
+      }
+
       totalComissao += comissaoIndividual;
       totalCredito += p.valor_credito;
 
@@ -113,10 +122,13 @@ export default function Calculadora() {
       }
     });
 
+    // Apply 200k threshold for commission
+    const comissaoFinal = totalCredito >= 200000 ? totalComissao : 0;
+
     return {
-      totalComissao,
+      totalComissao: comissaoFinal,
       totalBonus,
-      totalGeral: totalComissao + totalBonus + bonificacaoSemanal,
+      totalGeral: comissaoFinal + totalBonus + bonificacaoSemanal,
       totalCredito,
       aprovados,
       totalPropostas: propostas.length,
@@ -321,6 +333,18 @@ export default function Calculadora() {
                       </div>
 
                       <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase text-zinc-500">Tipo de Parcela</label>
+                        <select 
+                          value={p.tipo_parcela} 
+                          onChange={(e) => updateProposta(p.id, 'tipo_parcela', e.target.value)}
+                          className="input-field py-2 text-sm"
+                        >
+                          <option value="linear">Linear</option>
+                          <option value="reduzida">Reduzida (-40% comissão)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase text-zinc-500">Status</label>
                         <select 
                           value={p.status} 
@@ -448,17 +472,17 @@ export default function Calculadora() {
             {/* Meta Progress */}
             <div className="space-y-2 pt-4 border-t border-primary/10">
               <div className="flex justify-between text-[10px] font-bold uppercase">
-                <span className="text-zinc-500">Progresso da Meta</span>
-                <span className="text-primary">{Math.min(100, (resumo.totalGeral / metaMensal) * 100).toFixed(1)}%</span>
+                <span className="text-zinc-500">Progresso da Meta de Vendas</span>
+                <span className="text-primary">{Math.min(100, (resumo.totalCredito / metaMensal) * 100).toFixed(1)}%</span>
               </div>
               <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-primary transition-all duration-1000" 
-                  style={{ width: `${Math.min(100, (resumo.totalGeral / metaMensal) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (resumo.totalCredito / metaMensal) * 100)}%` }}
                 />
               </div>
               <p className="text-[10px] text-zinc-500 text-center">
-                Faltam {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.max(0, metaMensal - resumo.totalGeral))} para a meta
+                Faltam {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.max(0, metaMensal - resumo.totalCredito))} para a meta de vendas
               </p>
             </div>
           </section>
