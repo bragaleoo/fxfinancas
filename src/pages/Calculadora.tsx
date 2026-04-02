@@ -40,7 +40,8 @@ export default function Calculadora() {
       status: 'pendente',
       contemplado: false,
       valor_contemplacao: 0,
-      tipo_parcela: 'linear'
+      tipo_parcela: 'linear',
+      campanha: false
     }
   ]);
   const [consultor, setConsultor] = useState('Kauã');
