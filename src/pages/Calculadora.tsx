@@ -28,6 +28,7 @@ interface PropostaCalculo {
   contemplado: boolean;
   valor_contemplacao: number;
   tipo_parcela: 'linear' | 'reduzida';
+  campanha: boolean;
 }
 
 export default function Calculadora() {
@@ -57,7 +58,8 @@ export default function Calculadora() {
         status: 'pendente',
         contemplado: false,
         valor_contemplacao: 0,
-        tipo_parcela: 'linear'
+        tipo_parcela: 'linear',
+        campanha: false
       }
     ]);
     toast.success('Nova proposta adicionada');
@@ -94,7 +96,12 @@ export default function Calculadora() {
       
       // Apply reduction if parcel is 'reduzida'
       if (p.tipo_parcela === 'reduzida') {
-        comissaoIndividual *= 0.6; // 40% reduction
+        comissaoIndividual *= 0.65; // 35% reduction
+      }
+
+      // Apply reduction if campanha
+      if (p.campanha) {
+        comissaoIndividual *= 0.5; // 50% reduction
       }
 
       totalComissao += comissaoIndividual;
@@ -217,7 +224,11 @@ export default function Calculadora() {
           let basePercent = 0.8;
           if (p.valor_credito >= 500000) basePercent = 1.2;
           else if (p.valor_credito >= 350000) basePercent = 0.9;
-          const com = (p.valor_credito * basePercent) / 100;
+          let com = (p.valor_credito * basePercent) / 100;
+          
+          if (p.tipo_parcela === 'reduzida') com *= 0.65; // 35% reduction
+          if (p.campanha) com *= 0.5; // 50% reduction
+
           const bon = p.contemplado ? p.valor_contemplacao * 0.001 : 0;
           return [
             p.categoria,
@@ -340,8 +351,25 @@ export default function Calculadora() {
                           className="input-field py-2 text-sm"
                         >
                           <option value="linear">Linear</option>
-                          <option value="reduzida">Reduzida (-40% comissão)</option>
+                          <option value="reduzida">Reduzida (-35% comissão)</option>
                         </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase text-zinc-500">Campanha</label>
+                        <div className="flex items-center h-10">
+                          <label className="flex items-center gap-2 cursor-pointer group/check">
+                            <input 
+                              type="checkbox" 
+                              checked={p.campanha} 
+                              onChange={(e) => updateProposta(p.id, 'campanha', e.target.checked)}
+                              className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-primary focus:ring-primary focus:ring-offset-zinc-900"
+                            />
+                            <span className="text-xs font-medium text-zinc-400 group-hover/check:text-zinc-200 transition-colors">
+                              Proposta de Campanha (-50%)
+                            </span>
+                          </label>
+                        </div>
                       </div>
 
                       <div className="space-y-1">
