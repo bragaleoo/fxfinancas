@@ -5,6 +5,7 @@ import {
   FileText, 
   BarChart3, 
   Calculator, 
+  DollarSign,
   Settings, 
   PlusCircle,
   Menu,
@@ -23,6 +24,7 @@ const navItems = [
   { icon: FileText, label: 'Controle de Propostas', path: '/propostas' },
   { icon: BarChart3, label: 'Relatórios', path: '/relatorios' },
   { icon: Calculator, label: 'Calculadora de Remuneração Variável', path: '/calculadora' },
+  { icon: DollarSign, label: 'Controle de Pagamentos', path: '/pagamentos' },
 ];
 
 export function Sidebar() {

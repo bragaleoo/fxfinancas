@@ -11,6 +11,7 @@ const EditarProposta = React.lazy(() => import('./pages/EditarProposta'));
 const DetalheProposta = React.lazy(() => import('./pages/DetalheProposta'));
 const Relatorios = React.lazy(() => import('./pages/Relatorios'));
 const Calculadora = React.lazy(() => import('./pages/Calculadora'));
+const ControlePagamentos = React.lazy(() => import('./pages/ControlePagamentos'));
 const Login = React.lazy(() => import('./pages/Login'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/propostas/:id" element={<ProtectedRoute><DetalheProposta /></ProtectedRoute>} />
         <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
         <Route path="/calculadora" element={<ProtectedRoute><Calculadora /></ProtectedRoute>} />
+        <Route path="/pagamentos" element={<ProtectedRoute><ControlePagamentos /></ProtectedRoute>} />
         
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
