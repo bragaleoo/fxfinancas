@@ -147,6 +147,8 @@ export default function DetalheProposta() {
                 <InfoCard icon={Calendar} label="Data da Venda" value={format(new Date(proposta.data_fechamento), 'dd/MM/yyyy')} />
                 <InfoCard icon={User} label="Consultor" value={proposta.consultor_nome} />
                 <InfoCard icon={AlertCircle} label="Categoria" value={proposta.categoria} />
+                <InfoCard icon={FileText} label="Grupo" value={proposta.grupo} />
+                <InfoCard icon={FileText} label="Cota" value={proposta.cota} />
               </div>
 
               {/* Comprovantes Section */}
