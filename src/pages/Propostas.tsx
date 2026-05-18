@@ -201,7 +201,8 @@ export default function Propostas() {
           <option value="Kauã">Kauã</option>
           <option value="Luan">Luan</option>
           <option value="Osvaldo Pinheiro">Osvaldo Pinheiro</option>
-          <option value="Anderson Fontes">Anderson Fontes</option>
+          <option value="Keise Pereira">Keise Pereira</option>
+          <option value="Manasses Hezrom">Manasses Hezrom</option>
         </select>
 
         <select 
