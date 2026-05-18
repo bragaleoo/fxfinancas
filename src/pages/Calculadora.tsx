@@ -20,6 +20,18 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from 'sonner';
 
+const COMISSAO_MAP: Record<'Sênior' | 'Elite' | 'Sellect', number> = {
+  'Sênior': 0.7,
+  'Elite': 0.9,
+  'Sellect': 1.2,
+};
+
+const META_MAP: Record<'Sênior' | 'Elite' | 'Sellect', number> = {
+  'Sênior': 200000,
+  'Elite': 350000,
+  'Sellect': 500000,
+};
+
 interface PropostaCalculo {
   id: string;
   categoria: 'Imóvel' | 'Automóvel' | 'Serviços' | 'Outros';
@@ -44,10 +56,15 @@ export default function Calculadora() {
       campanha: false
     }
   ]);
+  const [categoriaConsultor, setCategoriaConsultor] = useState<'Sênior' | 'Elite' | 'Sellect'>('Sênior');
   const [consultor, setConsultor] = useState('Kauã');
   const [cliente, setCliente] = useState('');
-  const [metaMensal, setMetaMensal] = useState(200000); // Meta de vendas
+  const [metaMensal, setMetaMensal] = useState(200000);
   const [bonificacaoSemanal, setBonificacaoSemanal] = useState(0);
+
+  useEffect(() => {
+    setMetaMensal(META_MAP[categoriaConsultor]);
+  }, [categoriaConsultor]);
 
   const addProposta = () => {
     setPropostas([
@@ -87,22 +104,18 @@ export default function Calculadora() {
     const categorias: Record<string, number> = {};
     const parcelasMap: Record<number, number> = { 1: 0, 4: 0, 6: 0 };
 
-    propostas.forEach(p => {
-      // Commission Calculation
-      let basePercent = 0.8;
-      if (p.valor_credito >= 500000) basePercent = 1.2;
-      else if (p.valor_credito >= 350000) basePercent = 0.9;
+    // Taxa definida pela categoria do consultor
+    const basePercent = COMISSAO_MAP[categoriaConsultor];
 
+    propostas.forEach(p => {
       let comissaoIndividual = (p.valor_credito * basePercent) / 100;
-      
-      // Apply reduction if parcel is 'reduzida'
+
       if (p.tipo_parcela === 'reduzida') {
-        comissaoIndividual *= 0.65; // 35% reduction
+        comissaoIndividual *= 0.65;
       }
 
-      // Apply reduction if campanha
       if (p.campanha) {
-        comissaoIndividual *= 0.5; // 50% reduction
+        comissaoIndividual *= 0.5;
       }
 
       totalComissao += comissaoIndividual;
@@ -111,16 +124,16 @@ export default function Calculadora() {
       if (p.status === 'aprovado') aprovados++;
       categorias[p.categoria] = (categorias[p.categoria] || 0) + 1;
 
-      // Bonus
+      // Bônus: +0,3% sobre o valor contemplado
       if (p.contemplado && p.valor_contemplacao > 0) {
-        const bonus = p.valor_contemplacao * 0.001;
+        const bonus = p.valor_contemplacao * 0.003;
         totalBonus += bonus;
       }
 
-      // Installments
-      const totalIndividual = comissaoIndividual + (p.contemplado ? p.valor_contemplacao * 0.001 : 0);
-      const p1 = totalIndividual / 2;
-      const p2 = totalIndividual / 2;
+      // Split: 4/7 na 1ª parcela + 3/7 na 2ª parcela
+      const totalIndividual = comissaoIndividual + (p.contemplado ? p.valor_contemplacao * 0.003 : 0);
+      const p1 = totalIndividual * (4 / 7);
+      const p2 = totalIndividual * (3 / 7);
 
       parcelasMap[1] += p1;
       if (p.categoria === 'Imóvel') {
@@ -130,8 +143,9 @@ export default function Calculadora() {
       }
     });
 
-    // Apply 200k threshold for commission
-    const comissaoFinal = totalCredito >= 200000 ? totalComissao : 0;
+    // Comissão só é paga se atingir a meta da categoria
+    const metaCategoria = META_MAP[categoriaConsultor];
+    const comissaoFinal = totalCredito >= metaCategoria ? totalComissao : 0;
 
     return {
       totalComissao: comissaoFinal,
@@ -147,7 +161,7 @@ export default function Calculadora() {
         .map(([num, val]) => ({ numero: parseInt(num), valor: val }))
         .sort((a, b) => a.numero - b.numero)
     };
-  }, [propostas, bonificacaoSemanal]);
+  }, [propostas, bonificacaoSemanal, categoriaConsultor]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -222,15 +236,13 @@ export default function Calculadora() {
         startY: proposalsY + 5,
         head: [['Categoria', 'Crédito', 'Status', 'Contemplado', 'Comissão + Bônus']],
         body: propostas.map(p => {
-          let basePercent = 0.8;
-          if (p.valor_credito >= 500000) basePercent = 1.2;
-          else if (p.valor_credito >= 350000) basePercent = 0.9;
+          const basePercent = COMISSAO_MAP[categoriaConsultor];
           let com = (p.valor_credito * basePercent) / 100;
-          
-          if (p.tipo_parcela === 'reduzida') com *= 0.65; // 35% reduction
-          if (p.campanha) com *= 0.5; // 50% reduction
 
-          const bon = p.contemplado ? p.valor_contemplacao * 0.001 : 0;
+          if (p.tipo_parcela === 'reduzida') com *= 0.65;
+          if (p.campanha) com *= 0.5;
+
+          const bon = p.contemplado ? p.valor_contemplacao * 0.003 : 0;
           return [
             p.categoria,
             new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.valor_credito),
@@ -436,7 +448,19 @@ export default function Calculadora() {
               <User size={18} />
               <h3 className="text-lg font-bold text-white">Dados da Simulação</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-1">
+                <label className="label-text">Categoria do Consultor</label>
+                <select
+                  value={categoriaConsultor}
+                  onChange={(e) => setCategoriaConsultor(e.target.value as 'Sênior' | 'Elite' | 'Sellect')}
+                  className="input-field"
+                >
+                  <option value="Sênior">FX Sênior — 0,7% | Meta 200k</option>
+                  <option value="Elite">FX Elite — 0,9% | Meta 350k</option>
+                  <option value="Sellect">FX Sellect — 1,2% | Meta 500k</option>
+                </select>
+              </div>
               <div className="space-y-1">
                 <label className="label-text">Consultor Responsável</label>
                 <select 
@@ -447,7 +471,8 @@ export default function Calculadora() {
                   <option value="Kauã">Kauã</option>
                   <option value="Luan">Luan</option>
                   <option value="Osvaldo Pinheiro">Osvaldo Pinheiro</option>
-                  <option value="Anderson Fontes">Anderson Fontes</option>
+                  <option value="Keise Pereira">Keise Pereira</option>
+                  <option value="Manasses Hezrom">Manasses Hezrom</option>
                 </select>
               </div>
               <div className="space-y-1">
@@ -593,9 +618,10 @@ export default function Calculadora() {
             <Info className="text-primary shrink-0" size={20} />
             <div className="text-[10px] text-zinc-400 space-y-1">
               <p className="font-bold text-primary uppercase tracking-wider">Regras V2 Pro:</p>
-              <p>• Sênior: 200k (0.8%) | Elite: 350k (0.9%) | Sellect: 500k (1.2%)</p>
-              <p>• Bônus: +0.1% sobre o valor contemplado.</p>
+              <p>• Sênior: 200k (0,7%) | Elite: 350k (0,9%) | Sellect: 500k (1,2%)</p>
+              <p>• Bônus contemplação: +0,3% sobre o valor contemplado.</p>
               <p>• Prazos: Imóvel (1ª/6ª) | Outros (1ª/4ª).</p>
+              <p>• Split: 4/7 na 1ª parcela + 3/7 na 2ª parcela.</p>
             </div>
           </div>
         </div>
